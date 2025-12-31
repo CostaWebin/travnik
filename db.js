@@ -2,7 +2,7 @@
 // Provides database operations for plants, diseases, and their relationships
 
 const DB_NAME = 'HerbalGuideDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // Updated to support new data structure
 
 let db = null;
 
@@ -32,11 +32,13 @@ function initDatabase() {
             console.log('<i class="ph-bold ph-arrows-clockwise"></i> Database upgrade needed');
             db = event.target.result;
             
-            // Create object stores
+            // Create object stores with new fields
             if (!db.objectStoreNames.contains('plants')) {
                 const plantsStore = db.createObjectStore('plants', { keyPath: 'id', autoIncrement: true });
                 plantsStore.createIndex('name', 'name', { unique: false });
                 plantsStore.createIndex('nameLower', 'nameLower', { unique: false });
+                plantsStore.createIndex('latinName', 'latinName', { unique: false });
+                plantsStore.createIndex('toxicity', 'toxicity', { unique: false });
                 console.log('<i class="ph-bold ph-book-bookmark"></i> Created "plants" object store');
             }
             
@@ -45,6 +47,7 @@ function initDatabase() {
                 diseasesStore.createIndex('name', 'name', { unique: false });
                 diseasesStore.createIndex('nameLower', 'nameLower', { unique: false });
                 diseasesStore.createIndex('category', 'category', { unique: false });
+                diseasesStore.createIndex('icd10', 'icd10', { unique: false });
                 console.log('<i class="ph-bold ph-book-bookmark"></i> Created "diseases" object store');
             }
             
@@ -53,6 +56,12 @@ function initDatabase() {
                 linkStore.createIndex('plantId', 'plantId', { unique: false });
                 linkStore.createIndex('diseaseId', 'diseaseId', { unique: false });
                 console.log('<i class="ph-bold ph-book-bookmark"></i> Created "plant_diseases" object store');
+            }
+            
+            // Create new store for metadata
+            if (!db.objectStoreNames.contains('metadata')) {
+                const metadataStore = db.createObjectStore('metadata', { keyPath: 'key' });
+                console.log('<i class="ph-bold ph-book-bookmark"></i> Created "metadata" object store');
             }
             
             console.log('<i class="ph-bold ph-check-circle"></i> Database structure created');
@@ -429,9 +438,136 @@ class DatabaseManager {
             };
         });
     }
+    
+    // Save metadata
+    static saveMetadata(metadata) {
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(['metadata'], 'readwrite');
+            const store = transaction.objectStore('metadata');
+            const request = store.put({ key: 'appMetadata', ...metadata });
+            
+            request.onsuccess = () => {
+                console.log('<i class="ph-bold ph-check-circle"></i> Metadata saved');
+                resolve(request.result);
+            };
+            
+            request.onerror = () => {
+                console.error('<i class="ph-bold ph-x-circle"></i> Error saving metadata:', request.error);
+                reject(request.error);
+            };
+        });
+    }
+    
+    // Get metadata
+    static getMetadata() {
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(['metadata'], 'readonly');
+            const store = transaction.objectStore('metadata');
+            const request = store.get('appMetadata');
+            
+            request.onsuccess = () => {
+                resolve(request.result);
+            };
+            
+            request.onerror = () => {
+                console.error('<i class="ph-bold ph-x-circle"></i> Error getting metadata:', request.error);
+                reject(request.error);
+            };
+        });
+    }
+    
+    // Improved fuzzy search with Levenshtein distance
+    static fuzzySearch(query, storeName, maxDistance = 2) {
+        return new Promise((resolve, reject) => {
+            if (!query || query.trim() === '') {
+                resolve([]);
+                return;
+            }
+            
+            const transaction = db.transaction([storeName], 'readonly');
+            const store = transaction.objectStore(storeName);
+            const request = store.getAll();
+            
+            request.onsuccess = () => {
+                const items = request.result;
+                const searchTerm = query.toLowerCase().trim();
+                
+                // Calculate Levenshtein distance for each item
+                const scoredItems = items.map(item => {
+                    const itemName = item.name ? item.name.toLowerCase() : '';
+                    const distance = levenshteinDistance(searchTerm, itemName);
+                    const maxLen = Math.max(searchTerm.length, itemName.length);
+                    const similarity = 1 - (distance / maxLen);
+                    
+                    return {
+                        ...item,
+                        similarity,
+                        distance
+                    };
+                });
+                
+                // Filter by max distance and sort by similarity
+                const results = scoredItems
+                    .filter(item => item.distance <= maxDistance)
+                    .sort((a, b) => b.similarity - a.similarity)
+                    .slice(0, 20); // Limit to top 20 results
+                
+                console.log(`<i class="ph-bold ph-magnifying-glass"></i> Fuzzy search: "${query}" found ${results.length} results`);
+                resolve(results);
+            };
+            
+            request.onerror = () => {
+                console.error('<i class="ph-bold ph-x-circle"></i> Error in fuzzy search:', request.error);
+                reject(request.error);
+            };
+        });
+    }
 }
 
-// Sample data for testing
+// Levenshtein distance algorithm for fuzzy search
+function levenshteinDistance(str1, str2) {
+    const m = str1.length;
+    const n = str2.length;
+    
+    // Create matrix
+    const dp = Array(m + 1).fill(null).map(() => Array(n + 1).fill(null));
+    
+    // Initialize first row and column
+    for (let i = 0; i <= m; i++) dp[i][0] = i;
+    for (let j = 0; j <= n; j++) dp[0][j] = j;
+    
+    // Fill matrix
+    for (let i = 1; i <= m; i++) {
+        for (let j = 1; j <= n; j++) {
+            const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+            dp[i][j] = Math.min(
+                dp[i - 1][j] + 1,     // deletion
+                dp[i][j - 1] + 1,     // insertion
+                dp[i - 1][j - 1] + cost  // substitution
+            );
+        }
+    }
+    
+    return dp[m][n];
+}
+
+// Load data from plants_db.json file
+async function loadFromJSONFile() {
+    try {
+        console.log('<i class="ph-bold ph-download"></i> Loading data from plants_db.json...');
+        const response = await fetch('plants_db.json');
+        const data = await response.json();
+        
+        console.log(`<i class="ph-bold ph-check-circle"></i> Loaded ${data.plants.length} plants and ${data.diseases.length} diseases`);
+        
+        return data;
+    } catch (error) {
+        console.error('<i class="ph-bold ph-x-circle"></i> Error loading plants_db.json:', error);
+        return null;
+    }
+}
+
+// Sample data for testing (fallback)
 const SAMPLE_PLANTS = [
     { name: 'Ромашка аптечная', description: 'Противовоспалительное, успокаивающее средство', properties: 'Спазмолитическое, антисептическое', imagePath: '<i class="ph ph-flower-lotus"></i>' },
     { name: 'Мята перечная', description: 'Освежающее, болеутоляющее средство', properties: 'Спазмолитическое, желчегонное', imagePath: '<i class="ph ph-plant"></i>' },
@@ -463,58 +599,111 @@ async function seedDatabase() {
     try {
         console.log('<i class="ph ph-plant"></i> Starting database seeding...');
         
-        // Add plants
-        const plantIds = [];
-        for (const plant of SAMPLE_PLANTS) {
-            const id = await DatabaseManager.addPlant(plant);
-            plantIds.push(id);
+        // Try to load from plants_db.json first
+        const jsonData = await loadFromJSONFile();
+        
+        if (jsonData) {
+            // Use data from JSON file
+            const plantIds = [];
+            for (const plant of jsonData.plants) {
+                const id = await DatabaseManager.addPlant(plant);
+                plantIds.push(id);
+            }
+            
+            const diseaseIds = [];
+            for (const disease of jsonData.diseases) {
+                const id = await DatabaseManager.addDisease(disease);
+                diseaseIds.push(id);
+            }
+            
+            // Create links from relationships
+            const plantNameToId = new Map();
+            const diseaseNameToId = new Map();
+            
+            // Build name-to-ID maps
+            for (let i = 0; i < jsonData.plants.length; i++) {
+                plantNameToId.set(jsonData.plants[i].name, plantIds[i]);
+            }
+            for (let i = 0; i < jsonData.diseases.length; i++) {
+                diseaseNameToId.set(jsonData.diseases[i].name, diseaseIds[i]);
+            }
+            
+            // Create links
+            for (const rel of jsonData.relationships) {
+                const plantId = plantNameToId.get(rel.plantName);
+                const diseaseId = diseaseNameToId.get(rel.diseaseName);
+                
+                if (plantId !== undefined && diseaseId !== undefined) {
+                    await DatabaseManager.linkPlantDisease(
+                        plantId,
+                        diseaseId,
+                        rel.recipe,
+                        rel.dosage,
+                        rel.notes || ''
+                    );
+                }
+            }
+            
+            // Store metadata
+            await DatabaseManager.saveMetadata(jsonData.metadata);
+            
+            console.log('<i class="ph-bold ph-check-circle"></i> Database seeded successfully from JSON!');
+            console.log(`<i class="ph-bold ph-chart-bar"></i> Added ${plantIds.length} plants and ${diseaseIds.length} diseases`);
+        } else {
+            // Fallback to sample data
+            console.log('<i class="ph-bold ph-warning"></i> Using fallback sample data...');
+            
+            const plantIds = [];
+            for (const plant of SAMPLE_PLANTS) {
+                const id = await DatabaseManager.addPlant(plant);
+                plantIds.push(id);
+            }
+            
+            const diseaseIds = [];
+            for (const disease of SAMPLE_DISEASES) {
+                const id = await DatabaseManager.addDisease(disease);
+                diseaseIds.push(id);
+            }
+            
+            // Create links (examples)
+            // Ромашка (0) -> Простуда (0), Гастрит (1), Бессонница (2)
+            await DatabaseManager.linkPlantDisease(plantIds[0], diseaseIds[0], '1 ст.ложка цветков на стакан кипятка, настоять 15 минут', '3 раза в день по 1/3 стакана');
+            await DatabaseManager.linkPlantDisease(plantIds[0], diseaseIds[1], '1 ч.ложка на стакан кипятка, настоять 20 минут', 'За 30 минут до еды, 3 раза в день');
+            await DatabaseManager.linkPlantDisease(plantIds[0], diseaseIds[2], '2 ст.ложки на 500 мл кипятка', 'Перед сном 1 стакан');
+            
+            // Мята (1) -> Головная боль (3), Тошнота (9)
+            await DatabaseManager.linkPlantDisease(plantIds[1], diseaseIds[3], '1 ч.ложка листьев на чашку, настоять 10 минут', 'При появлении боли');
+            await DatabaseManager.linkPlantDisease(plantIds[1], diseaseIds[9], 'Свежие листья заварить кипятком', 'Небольшими глотками');
+            
+            // Зверобой (2) -> Депрессия (5)
+            await DatabaseManager.linkPlantDisease(plantIds[2], diseaseIds[5], '1 ст.ложка травы на 200 мл кипятка, 15 минут', '2-3 раза в день курсом 4-6 недель', 'Не сочетать с антидепрессантами!');
+            
+            // Календула (3) -> Раны (6), Боль в горле (7)
+            await DatabaseManager.linkPlantDisease(plantIds[3], diseaseIds[6], 'Настойка 1:10 на спирту', 'Промывать рану 2-3 раза в день');
+            await DatabaseManager.linkPlantDisease(plantIds[3], diseaseIds[7], '1 ст.ложка на стакан кипятка', 'Полоскать горло 4-5 раз в день');
+            
+            // Валериана (4) -> Бессонница (2)
+            await DatabaseManager.linkPlantDisease(plantIds[4], diseaseIds[2], 'Настойка или таблетки по инструкции', 'За час до сна');
+            
+            // Шалфей (5) -> Боль в горле (7)
+            await DatabaseManager.linkPlantDisease(plantIds[5], diseaseIds[7], '1 ст.ложка на стакан кипятка, 30 минут', 'Полоскать 5-6 раз в день');
+            
+            // Крапива (6) -> Анемия (8)
+            await DatabaseManager.linkPlantDisease(plantIds[6], diseaseIds[8], '2 ст.ложки листьев на 500 мл кипятка', '3 раза в день перед едой');
+            
+            // Липа (7) -> Простуда (0)
+            await DatabaseManager.linkPlantDisease(plantIds[7], diseaseIds[0], '2 ст.ложки цветков на 500 мл кипятка', 'Горячим на ночь');
+            
+            // Чабрец (8) -> Кашель (4)
+            await DatabaseManager.linkPlantDisease(plantIds[8], diseaseIds[4], '1 ст.ложка на стакан кипятка, 15 минут', '3-4 раза в день');
+            
+            // Имбирь (9) -> Простуда (0), Тошнота (9)
+            await DatabaseManager.linkPlantDisease(plantIds[9], diseaseIds[0], 'Свежий корень нарезать, залить кипятком, добавить мёд', '2-3 раза в день');
+            await DatabaseManager.linkPlantDisease(plantIds[9], diseaseIds[9], 'Небольшой кусочек свежего корня жевать', 'По необходимости');
+            
+            console.log('<i class="ph-bold ph-check-circle"></i> Database seeded successfully!');
+            console.log(`<i class="ph-bold ph-chart-bar"></i> Added ${plantIds.length} plants and ${diseaseIds.length} diseases`);
         }
-        
-        // Add diseases
-        const diseaseIds = [];
-        for (const disease of SAMPLE_DISEASES) {
-            const id = await DatabaseManager.addDisease(disease);
-            diseaseIds.push(id);
-        }
-        
-        // Create links (examples)
-        // Ромашка (0) -> Простуда (0), Гастрит (1), Бессонница (2)
-        await DatabaseManager.linkPlantDisease(plantIds[0], diseaseIds[0], '1 ст.ложка цветков на стакан кипятка, настоять 15 минут', '3 раза в день по 1/3 стакана');
-        await DatabaseManager.linkPlantDisease(plantIds[0], diseaseIds[1], '1 ч.ложка на стакан кипятка, настоять 20 минут', 'За 30 минут до еды, 3 раза в день');
-        await DatabaseManager.linkPlantDisease(plantIds[0], diseaseIds[2], '2 ст.ложки на 500 мл кипятка', 'Перед сном 1 стакан');
-        
-        // Мята (1) -> Головная боль (3), Тошнота (9)
-        await DatabaseManager.linkPlantDisease(plantIds[1], diseaseIds[3], '1 ч.ложка листьев на чашку, настоять 10 минут', 'При появлении боли');
-        await DatabaseManager.linkPlantDisease(plantIds[1], diseaseIds[9], 'Свежие листья заварить кипятком', 'Небольшими глотками');
-        
-        // Зверобой (2) -> Депрессия (5)
-        await DatabaseManager.linkPlantDisease(plantIds[2], diseaseIds[5], '1 ст.ложка травы на 200 мл кипятка, 15 минут', '2-3 раза в день курсом 4-6 недель', 'Не сочетать с антидепрессантами!');
-        
-        // Календула (3) -> Раны (6), Боль в горле (7)
-        await DatabaseManager.linkPlantDisease(plantIds[3], diseaseIds[6], 'Настойка 1:10 на спирту', 'Промывать рану 2-3 раза в день');
-        await DatabaseManager.linkPlantDisease(plantIds[3], diseaseIds[7], '1 ст.ложка на стакан кипятка', 'Полоскать горло 4-5 раз в день');
-        
-        // Валериана (4) -> Бессонница (2)
-        await DatabaseManager.linkPlantDisease(plantIds[4], diseaseIds[2], 'Настойка или таблетки по инструкции', 'За час до сна');
-        
-        // Шалфей (5) -> Боль в горле (7)
-        await DatabaseManager.linkPlantDisease(plantIds[5], diseaseIds[7], '1 ст.ложка на стакан кипятка, 30 минут', 'Полоскать 5-6 раз в день');
-        
-        // Крапива (6) -> Анемия (8)
-        await DatabaseManager.linkPlantDisease(plantIds[6], diseaseIds[8], '2 ст.ложки листьев на 500 мл кипятка', '3 раза в день перед едой');
-        
-        // Липа (7) -> Простуда (0)
-        await DatabaseManager.linkPlantDisease(plantIds[7], diseaseIds[0], '2 ст.ложки цветков на 500 мл кипятка', 'Горячим на ночь');
-        
-        // Чабрец (8) -> Кашель (4)
-        await DatabaseManager.linkPlantDisease(plantIds[8], diseaseIds[4], '1 ст.ложка на стакан кипятка, 15 минут', '3-4 раза в день');
-        
-        // Имбирь (9) -> Простуда (0), Тошнота (9)
-        await DatabaseManager.linkPlantDisease(plantIds[9], diseaseIds[0], 'Свежий корень нарезать, залить кипятком, добавить мёд', '2-3 раза в день');
-        await DatabaseManager.linkPlantDisease(plantIds[9], diseaseIds[9], 'Небольшой кусочек свежего корня жевать', 'По необходимости');
-        
-        console.log('<i class="ph-bold ph-check-circle"></i> Database seeded successfully!');
-        console.log(`<i class="ph-bold ph-chart-bar"></i> Added ${plantIds.length} plants and ${diseaseIds.length} diseases`);
         
     } catch (error) {
         console.error('<i class="ph-bold ph-x-circle"></i> Error seeding database:', error);

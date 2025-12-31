@@ -5,12 +5,65 @@ let deferredPrompt = null;
 let currentView = 'plants';
 let searchTimeout = null;
 let selectedCategory = 'All';
+let translations = null; // Will be loaded from plants_db.json
+let medicalDisclaimer = '';
+
+// Load translations from plants_db.json
+async function loadTranslations() {
+    try {
+        const response = await fetch('plants_db.json');
+        const data = await response.json();
+        
+        if (data.translations) {
+            translations = data.translations.interface;
+            medicalDisclaimer = data.metadata.disclaimer;
+            console.log('<i class="ph-bold ph-translate"></i> Translations loaded');
+        }
+    } catch (error) {
+        console.error('<i class="ph-bold ph-x-circle"></i> Error loading translations:', error);
+        // Use default translations if loading fails
+        translations = {
+            searchPlaceholderPlant: 'Введите название растения...',
+            searchPlaceholderDisease: 'Введите название болезни...',
+            emptyStateTitle: 'Начните поиск',
+            emptyStateTextPlant: 'Введите название растения, например "ромашка" или "мята"',
+            emptyStateTextDisease: 'Введите название болезни или выберите категорию',
+            noResultsTitle: 'Ничего не найдено',
+            noResultsText: 'Попробуйте изменить запрос',
+            properties: 'Свойства',
+            helpsWith: 'Помогает при заболеваниях',
+            recommendedPlants: 'Рекомендуемые растения',
+            recipe: 'Рецепт',
+            dosage: 'Дозировка',
+            notes: 'Примечания',
+            addToFavorites: 'Добавить в избранное',
+            removeFromFavorites: 'Удалить из избранного',
+            inFavorites: 'В избранном',
+            shareRecipes: 'Поделиться рецептами',
+            exportFavorites: 'Экспортировать избранное',
+            tipsTitle: 'Знаете ли вы?',
+            refreshTip: 'Другой совет',
+            recentlyViewed: 'Недавно просмотренные',
+            favoritesEmpty: 'Избранное пусто',
+            favoritesEmptyText: 'Добавьте растения или болезни в избранное для быстрого доступа'
+        };
+        medicalDisclaimer = '⚠️ ВНИМАНИЕ: Эта информация носит справочный характер. Перед применением любых лекарственных растений обязательно проконсультируйтесь с врачом.';
+    }
+}
+
+// Get translation with fallback
+function t(key) {
+    return translations && translations[key] ? translations[key] : key;
+}
 
 // Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('<i class="ph-bold ph-device-mobile"></i> DOM loaded, initializing app...');
     
     try {
+        // Load translations first
+        await loadTranslations();
+        
         // Initialize database
         await initDatabase();
         console.log('<i class="ph-bold ph-check-circle"></i> Database initialized');
@@ -23,6 +76,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         // Setup offline detection
         setupOfflineDetection();
+        
+        // Add medical disclaimer banner
+        addMedicalDisclaimerBanner();
         
         // Load initial view
         loadPlantsView();
@@ -102,6 +158,22 @@ function setupInstallPrompt() {
     });
     
     console.log('<i class="ph-bold ph-check-circle"></i> Install prompt setup complete');
+}
+
+// Add medical disclaimer banner
+function addMedicalDisclaimerBanner() {
+    const banner = document.createElement('div');
+    banner.className = 'medical-disclaimer-banner';
+    banner.innerHTML = `
+        <div class="disclaimer-content">
+            <span class="disclaimer-icon"><i class="ph-bold ph-warning"></i></span>
+            <span class="disclaimer-text">${medicalDisclaimer}</span>
+            <button class="disclaimer-close" onclick="this.parentElement.parentElement.style.display='none'">
+                <i class="ph-bold ph-x"></i>
+            </button>
+        </div>
+    `;
+    document.body.insertBefore(banner, document.body.firstChild);
 }
 
 // Setup offline detection
@@ -346,21 +418,45 @@ async function showPlantDetail(plantId) {
         const modalContent = document.getElementById('plantModalContent');
         const isFavorite = checkFavorite('plant', plantId);
         
+        // Check if plant is toxic
+        const isToxic = plant.toxicity && plant.toxicity.includes('Токсичное');
+        const toxicityWarning = isToxic ? `
+            <div class="toxicity-warning">
+                <div class="toxicity-icon"><i class="ph-bold ph-warning"></i></div>
+                <div class="toxicity-content">
+                    <div class="toxicity-title">${plant.toxicity}</div>
+                    <div class="toxicity-text">Обязательно проконсультируйтесь с врачом перед применением!</div>
+                </div>
+            </div>
+        ` : '';
+        
         modalContent.innerHTML = `
             <div class="modal-header">
-                <div class="modal-icon"><i class="ph ph-plant"></i></div>
+                <div class="modal-icon">${plant.imagePath || '<i class="ph ph-plant"></i>'}</div>
                 <div class="modal-title-section">
                     <h2 class="modal-title">${plant.name}</h2>
+                    ${plant.latinName ? `<p class="modal-latin">${plant.latinName}</p>` : ''}
                     <p class="modal-subtitle">${plant.description}</p>
                 </div>
                 <button class="modal-close" onclick="closeModal('plantModal')"><i class="ph-bold ph-x"></i></button>
             </div>
             
             <div class="modal-body">
+                ${toxicityWarning}
+                
                 <div class="modal-section">
-                    <h3 class="modal-section-title"><i class="ph-bold ph-clipboard-text"></i> Свойства</h3>
+                    <h3 class="modal-section-title"><i class="ph-bold ph-clipboard-text"></i> ${t('properties')}</h3>
                     <div class="modal-section-content">${plant.properties}</div>
                 </div>
+                
+                ${plant.uses && plant.uses.length > 0 ? `
+                    <div class="modal-section">
+                        <h3 class="modal-section-title"><i class="ph-bold ph-list"></i> Применение</h3>
+                        <ul class="uses-list">
+                            ${plant.uses.map(use => `<li>${use}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
                 
                 <div class="modal-section">
                     <h3 class="modal-section-title"><i class="ph-bold ph-pill"></i> Помогает при заболеваниях</h3>
@@ -388,13 +484,13 @@ async function showPlantDetail(plantId) {
                 
                 <button class="favorite-btn ${isFavorite ? 'active' : ''}" onclick="toggleFavorite('plant', ${plantId})">
                     <span>${isFavorite ? '<i class="ph-bold ph-star"></i>' : '<i class="ph ph-star"></i>'}</span>
-                    <span>${isFavorite ? 'В избранном' : 'Добавить в избранное'}</span>
+                    <span>${isFavorite ? t('inFavorites') : t('addToFavorites')}</span>
                 </button>
                 
                 ${diseases.length > 0 ? `
                     <button class="share-button" onclick="shareRecipe('plant', ${plantId})">
                         <span><i class="ph-bold ph-export"></i></span>
-                        <span>Поделиться рецептами</span>
+                        <span>${t('shareRecipes')}</span>
                     </button>
                 ` : ''}
             </div>

@@ -626,6 +626,13 @@ body {
     color: var(--herbal-text-secondary);
 }
 
+.modal-latin {
+    font-size: var(--herbal-font-size-sm);
+    color: var(--herbal-text-secondary);
+    font-style: italic;
+    margin-top: calc(var(--herbal-space-xs) * -1);
+}
+
 .modal-close {
     background: none;
     border: none;
@@ -890,6 +897,94 @@ body {
     font-size: 3rem;
     margin-bottom: var(--herbal-space-md);
     opacity: 0.5;
+}
+
+/* ============================================
+   MEDICAL DISCLAIMER BANNER
+   ============================================ */
+.medical-disclaimer-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #fff3cd, #ffebee);
+    padding: var(--herbal-space-md);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: slideDown 0.3s ease-out;
+}
+
+.disclaimer-content {
+    display: flex;
+    align-items: center;
+    gap: var(--herbal-space-md);
+    max-width: var(--herbal-container-max-width);
+    margin: 0 auto;
+}
+
+.disclaimer-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.disclaimer-text {
+    font-size: var(--herbal-font-size-sm);
+    font-weight: 500;
+    color: var(--herbal-text);
+    flex: 1;
+}
+
+.disclaimer-close {
+    background: white;
+    border: none;
+    color: var(--herbal-text-secondary);
+    cursor: pointer;
+    padding: var(--herbal-space-xs);
+    min-width: auto;
+    font-size: 1.2rem;
+    min-height: 44px;
+}
+
+.disclaimer-close:hover {
+    color: var(--herbal-text);
+}
+
+/* ============================================
+   TOXICITY WARNING
+   ============================================ */
+.toxicity-warning {
+    background: linear-gradient(135deg, #fff3cd, #ffebee);
+    border-left: 4px solid #ff6b6b;
+    border-radius: var(--herbal-radius-md);
+    padding: var(--herbal-space-md);
+    margin-bottom: var(--herbal-space-lg);
+}
+
+.toxicity-icon {
+    font-size: 1.5rem;
+    color: #ff6b6b;
+}
+
+.toxicity-content {
+    flex: 1;
+}
+
+.toxicity-title {
+    font-size: var(--herbal-font-size-base);
+    font-weight: 600;
+    color: #ff6b6b;
+    margin-bottom: var(--herbal-space-xs);
+    display: flex;
+    align-items: center;
+    gap: var(--herbal-space-sm);
+}
+
+.toxicity-text {
+    font-size: var(--herbal-font-size-sm);
+    color: var(--herbal-text);
 }
 
 /* ============================================
