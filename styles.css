@@ -1,0 +1,1308 @@
+/* ============================================
+   DESIGN SYSTEM - CSS Variables
+   ============================================ */
+
+/* Phosphor Icons */
+.ph {
+    font-family: 'Phosphor', sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+}
+
+.ph-bold {
+    font-weight: 600;
+}
+
+.ph-fill {
+    font-weight: 900;
+}
+:root {
+    /* Colors */
+    --herbal-primary: #2d5016;
+    --herbal-primary-light: #4a7c3b;
+    --herbal-primary-lighter: #8fbc8f;
+    --herbal-bg: #f0f8f0;
+    --herbal-text: #1a1a1a;
+    --herbal-text-secondary: #4a5568;
+    --herbal-border: #ddd;
+    --herbal-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    --herbal-shadow-hover: 0 4px 12px rgba(0,0,0,0.15);
+    
+    /* Fluid Spacing - Mobile First (4px grid) */
+    --herbal-space-xs: clamp(0.25rem, 0.5vw + 0.125rem, 0.375rem);
+    --herbal-space-sm: clamp(0.5rem, 1vw + 0.25rem, 0.75rem);
+    --herbal-space-md: clamp(0.75rem, 1.5vw + 0.5rem, 1rem);
+    --herbal-space-lg: clamp(1rem, 2vw + 0.75rem, 1.5rem);
+    --herbal-space-xl: clamp(1.5rem, 3vw + 1rem, 2rem);
+    --herbal-space-2xl: clamp(2rem, 4vw + 1.5rem, 3rem);
+    
+    /* Fluid Typography */
+    --herbal-font-size-base: clamp(1rem, 0.5vw + 0.875rem, 1.125rem);
+    --herbal-font-size-sm: clamp(0.875rem, 0.4vw + 0.75rem, 1rem);
+    --herbal-font-size-lg: clamp(1.125rem, 0.6vw + 1rem, 1.25rem);
+    --herbal-font-size-xl: clamp(1.25rem, 0.8vw + 1.125rem, 1.5rem);
+    --herbal-font-size-2xl: clamp(1.5rem, 1vw + 1.25rem, 2rem);
+    
+    /* Container */
+    --herbal-container-padding: clamp(1rem, 2vw + 0.5rem, 2rem);
+    --herbal-container-max-width: min(100% - var(--herbal-container-padding) * 2, 1280px);
+    
+    /* Border Radius */
+    --herbal-radius-sm: 4px;
+    --herbal-radius-md: 8px;
+    --herbal-radius-lg: 12px;
+    --herbal-radius-xl: 16px;
+    --herbal-radius-full: 50%;
+}
+
+/* ============================================
+   RESET & BASE STYLES
+   ============================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--herbal-bg);
+    color: var(--herbal-text);
+    line-height: 1.6;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+.app-header {
+    background: linear-gradient(135deg, var(--herbal-primary), var(--herbal-primary-light));
+    color: white;
+    padding: var(--herbal-space-md);
+    box-shadow: var(--herbal-shadow);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: var(--herbal-space-md);
+    max-width: var(--herbal-container-max-width);
+    margin-inline: auto;
+    padding-inline: var(--herbal-container-padding);
+}
+
+.app-icon {
+    font-size: var(--herbal-font-size-2xl);
+}
+
+.app-header h1 {
+    font-size: var(--herbal-font-size-xl);
+    font-weight: 600;
+}
+
+/* ============================================
+   MAIN CONTENT
+   ============================================ */
+.app-main {
+    max-width: var(--herbal-container-max-width);
+    margin: 0 auto;
+    padding: var(--herbal-container-padding);
+    padding-bottom: clamp(4rem, 8vw + 2rem, 5rem);
+    min-height: calc(100vh - 160px);
+}
+
+/* ============================================
+   LOADING STATE
+   ============================================ */
+.loading {
+    text-align: center;
+    padding: var(--herbal-space-2xl);
+    color: var(--herbal-text-secondary);
+    font-size: var(--herbal-font-size-lg);
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-radius: var(--herbal-radius-full);
+    border-top-color: var(--herbal-primary);
+    animation: spin 0.8s linear infinite;
+    margin-bottom: var(--herbal-space-md);
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   BOTTOM NAVIGATION
+   ============================================ */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    display: flex;
+    justify-content: space-around;
+    padding: var(--herbal-space-sm) 0;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+    z-index: 100;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--herbal-space-xs);
+    background: none;
+    border: none;
+    color: var(--herbal-text-secondary);
+    cursor: pointer;
+    padding: var(--herbal-space-sm) var(--herbal-space-md);
+    transition: all 0.2s;
+    min-width: 80px;
+    min-height: 44px;
+}
+
+.nav-item:hover {
+    background-color: rgba(0,0,0,0.05);
+    border-radius: var(--herbal-radius-md);
+}
+
+.nav-item.active {
+    color: var(--herbal-primary);
+}
+
+.nav-icon {
+    font-size: 1.5rem;
+}
+
+.nav-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* ============================================
+   INSTALL BANNER
+   ============================================ */
+.install-banner {
+    position: fixed;
+    bottom: clamp(4rem, 8vw + 2rem, 5rem);
+    left: var(--herbal-space-md);
+    right: var(--herbal-space-md);
+    background: var(--herbal-primary);
+    color: white;
+    padding: var(--herbal-space-md);
+    border-radius: var(--herbal-radius-lg);
+    box-shadow: var(--herbal-shadow-hover);
+    display: flex;
+    align-items: center;
+    gap: var(--herbal-space-md);
+    z-index: 99;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.install-banner p {
+    flex: 1;
+    margin: 0;
+    font-size: var(--herbal-font-size-base);
+}
+
+.install-banner button {
+    background: white;
+    color: var(--herbal-primary);
+    border: none;
+    padding: var(--herbal-space-sm) var(--herbal-space-md);
+    border-radius: var(--herbal-radius-sm);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: var(--herbal-font-size-base);
+    transition: all 0.2s;
+    min-height: 44px;
+}
+
+.install-banner button:hover {
+    transform: scale(1.05);
+}
+
+#dismissInstall {
+    background: transparent;
+    color: white;
+    padding: var(--herbal-space-sm);
+    min-width: auto;
+}
+
+/* ============================================
+   SEARCH CONTAINER
+   ============================================ */
+.search-container {
+    margin-bottom: var(--herbal-space-lg);
+    position: relative;
+}
+
+.search-box {
+    width: 100%;
+    padding: var(--herbal-space-sm) var(--herbal-space-md);
+    font-size: var(--herbal-font-size-base);
+    border: 2px solid var(--herbal-border);
+    border-radius: var(--herbal-radius-lg);
+    background: white;
+    transition: all 0.3s;
+    font-family: inherit;
+    min-height: 44px;
+}
+
+.search-box:focus {
+    outline: none;
+    border-color: var(--herbal-primary);
+    box-shadow: 0 0 0 3px rgba(45, 80, 22, 0.1);
+}
+
+.search-wrapper {
+    position: relative;
+}
+
+.clear-search {
+    position: absolute;
+    right: var(--herbal-space-md);
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--herbal-text-secondary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: var(--herbal-space-xs);
+    display: none;
+    transition: color 0.2s;
+}
+
+.clear-search.show {
+    display: block;
+}
+
+.clear-search:hover {
+    color: var(--herbal-text);
+}
+
+/* ============================================
+   AUTOCOMPLETE DROPDOWN
+   ============================================ */
+.autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid var(--herbal-border);
+    border-radius: var(--herbal-radius-md);
+    margin-top: var(--herbal-space-sm);
+    max-height: 300px;
+    overflow-y: auto;
+    box-shadow: var(--herbal-shadow-hover);
+    z-index: 50;
+    display: none;
+}
+
+.autocomplete-dropdown.show {
+    display: block;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.autocomplete-item {
+    padding: var(--herbal-space-sm) var(--herbal-space-md);
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: var(--herbal-space-md);
+    min-height: 48px;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item:hover {
+    background-color: #f8fdf8;
+}
+
+.autocomplete-item-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.autocomplete-item-text {
+    flex: 1;
+}
+
+.autocomplete-item-name {
+    font-weight: 600;
+    color: var(--herbal-text);
+    margin-bottom: var(--herbal-space-xs);
+}
+
+.autocomplete-item-desc {
+    font-size: var(--herbal-font-size-sm);
+    color: var(--herbal-text-secondary);
+}
+
+/* ============================================
+   CATEGORY FILTERS
+   ============================================ */
+.category-filters {
+    display: flex;
+    gap: var(--herbal-space-sm);
+    overflow-x: auto;
+    padding-bottom: var(--herbal-space-sm);
+    margin-bottom: var(--herbal-space-md);
+    -webkit-overflow-scrolling: touch;
+}
+
+.category-filters::-webkit-scrollbar {
+    height: 4px;
+}
+
+.category-filters::-webkit-scrollbar-thumb {
+    background: var(--herbal-primary-lighter);
+    border-radius: 2px;
+}
+
+.category-chip {
+    padding: var(--herbal-space-sm) var(--herbal-space-md);
+    background: white;
+    border: 2px solid var(--herbal-border);
+    border-radius: 20px;
+    font-size: var(--herbal-font-size-base);
+    font-weight: 500;
+    color: var(--herbal-text);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-height: 44px;
+}
+
+.category-chip:hover {
+    border-color: var(--herbal-primary-light);
+    background: #f8fdf8;
+}
+
+.category-chip.active {
+    background: var(--herbal-primary);
+    color: white;
+    border-color: var(--herbal-primary);
+}
+
+/* ============================================
+   CARD GRID
+   ============================================ */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+    gap: var(--herbal-space-md);
+    margin-top: var(--herbal-space-md);
+}
+
+/* ============================================
+   CARDS
+   ============================================ */
+.card,
+.disease-card {
+    background: white;
+    border-radius: var(--herbal-radius-lg);
+    padding: var(--herbal-space-lg);
+    box-shadow: var(--herbal-shadow);
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+    position: relative;
+}
+
+.card:hover,
+.disease-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--herbal-shadow-hover);
+    border-color: var(--herbal-primary-lighter);
+}
+
+.card-header,
+.disease-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--herbal-space-md);
+    margin-bottom: var(--herbal-space-md);
+}
+
+.card-icon,
+.disease-card-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.card-title,
+.disease-card-title {
+    flex: 1;
+}
+
+.card-name,
+.disease-card-name {
+    font-size: var(--herbal-font-size-lg);
+    font-weight: 600;
+    color: var(--herbal-text);
+    margin-bottom: var(--herbal-space-xs);
+}
+
+.card-description,
+.disease-card-description {
+    font-size: var(--herbal-font-size-base);
+    color: var(--herbal-text-secondary);
+    line-height: 1.4;
+}
+
+.card-properties {
+    margin-top: var(--herbal-space-md);
+    padding-top: var(--herbal-space-md);
+    border-top: 1px solid #f0f0f0;
+    font-size: var(--herbal-font-size-sm);
+    color: var(--herbal-primary-light);
+}
+
+.disease-card-category {
+    display: inline-block;
+    margin-top: var(--herbal-space-sm);
+    padding: var(--herbal-space-xs) var(--herbal-space-md);
+    background: var(--herbal-primary-lighter);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 12px;
+    text-transform: uppercase;
+}
+
+.favorite-card {
+    position: relative;
+}
+
+.favorite-badge {
+    position: absolute;
+    top: var(--herbal-space-sm);
+    right: var(--herbal-space-sm);
+    background: var(--herbal-primary);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--herbal-radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+.empty-state {
+    text-align: center;
+    padding: var(--herbal-space-2xl) var(--herbal-space-md);
+    color: var(--herbal-text-secondary);
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: var(--herbal-space-md);
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    font-size: var(--herbal-font-size-xl);
+    margin-bottom: var(--herbal-space-sm);
+    color: var(--herbal-text);
+}
+
+.empty-state p {
+    font-size: var(--herbal-font-size-base);
+}
+
+/* ============================================
+   MODAL
+   ============================================ */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: var(--herbal-space-md);
+}
+
+.modal-overlay.show {
+    display: flex;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+    background: white;
+    border-radius: var(--herbal-radius-xl);
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.3s ease-out;
+}
+
+.modal-header {
+    padding: var(--herbal-space-lg);
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    gap: var(--herbal-space-md);
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+}
+
+.modal-icon {
+    font-size: 2.5rem;
+}
+
+.modal-title-section {
+    flex: 1;
+}
+
+.modal-title {
+    font-size: var(--herbal-font-size-2xl);
+    font-weight: 600;
+    color: var(--herbal-text);
+    margin-bottom: var(--herbal-space-xs);
+}
+
+.modal-subtitle {
+    font-size: var(--herbal-font-size-base);
+    color: var(--herbal-text-secondary);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--herbal-text-secondary);
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--herbal-radius-full);
+    transition: all 0.2s;
+}
+
+.modal-close:hover {
+    background: #f0f0f0;
+    color: var(--herbal-text);
+}
+
+.modal-body {
+    padding: var(--herbal-space-lg);
+}
+
+.modal-section {
+    margin-bottom: var(--herbal-space-lg);
+}
+
+.modal-section:last-child {
+    margin-bottom: 0;
+}
+
+.modal-section-title {
+    font-size: var(--herbal-font-size-lg);
+    font-weight: 600;
+    color: var(--herbal-primary);
+    margin-bottom: var(--herbal-space-md);
+    display: flex;
+    align-items: center;
+    gap: var(--herbal-space-sm);
+}
+
+.modal-section-content {
+    color: var(--herbal-text);
+    line-height: 1.6;
+}
+
+/* ============================================
+   DISEASE/PLANT LIST IN MODAL
+   ============================================ */
+.disease-list,
+.plant-list {
+    list-style: none;
+}
+
+.disease-item,
+.plant-list-item {
+    background: #f8fdf8;
+    border-left: 4px solid var(--herbal-primary);
+    padding: var(--herbal-space-md);
+    margin-bottom: var(--herbal-space-md);
+    border-radius: var(--herbal-radius-md);
+}
+
+.disease-item:last-child,
+.plant-list-item:last-child {
+    margin-bottom: 0;
+}
+
+.disease-item-name,
+.plant-item-name {
+    font-weight: 600;
+    color: var(--herbal-primary);
+    margin-bottom: var(--herbal-space-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--herbal-space-sm);
+}
+
+.recipe-section {
+    margin-top: var(--herbal-space-md);
+}
+
+.recipe-label {
+    font-size: var(--herbal-font-size-sm);
+    font-weight: 600;
+    color: var(--herbal-text-secondary);
+    text-transform: uppercase;
+    margin-bottom: var(--herbal-space-xs);
+}
+
+.recipe-text {
+    color: var(--herbal-text);
+    line-height: 1.5;
+    margin-bottom: var(--herbal-space-sm);
+}
+
+.recipe-notes {
+    font-size: var(--herbal-font-size-base);
+    color: #d32f2f;
+    font-style: italic;
+    margin-top: var(--herbal-space-sm);
+    padding: var(--herbal-space-sm);
+    background: #ffebee;
+    border-radius: var(--herbal-radius-sm);
+}
+
+.plant-item-header {
+    display: flex;
+    align-items: center;
+    gap: var(--herbal-space-md);
+    margin-bottom: var(--herbal-space-md);
+}
+
+.plant-item-icon {
+    font-size: 1.5rem;
+}
+
+.plant-item-name {
+    font-weight: 600;
+    color: var(--herbal-primary);
+    flex: 1;
+}
+
+.plant-item-arrow {
+    color: var(--herbal-text-secondary);
+    font-size: 1.2rem;
+}
+
+.plant-list-item {
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.plant-list-item:hover {
+    background: #f0f8f0;
+    transform: translateX(4px);
+}
+
+/* ============================================
+   FAVORITE BUTTON
+   ============================================ */
+.favorite-btn {
+    background: none;
+    border: 2px solid var(--herbal-primary);
+    color: var(--herbal-primary);
+    padding: var(--herbal-space-md) var(--herbal-space-lg);
+    border-radius: var(--herbal-radius-md);
+    font-size: var(--herbal-font-size-base);
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: var(--herbal-space-sm);
+    transition: all 0.2s;
+    width: 100%;
+    justify-content: center;
+    margin-top: var(--herbal-space-md);
+    min-height: 44px;
+}
+
+.favorite-btn:hover {
+    background: var(--herbal-primary);
+    color: white;
+}
+
+.favorite-btn.active {
+    background: var(--herbal-primary);
+    color: white;
+}
+
+/* ============================================
+   SHARE BUTTON
+   ============================================ */
+.share-button {
+    background: var(--herbal-primary-lighter);
+    color: white;
+    border: none;
+    padding: var(--herbal-space-sm) var(--herbal-space-md);
+    border-radius: var(--herbal-radius-md);
+    font-size: var(--herbal-font-size-base);
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--herbal-space-sm);
+    transition: all 0.2s;
+    margin-top: var(--herbal-space-sm);
+}
+
+.share-button:hover {
+    background: var(--herbal-primary-light);
+    transform: scale(1.05);
+}
+
+/* ============================================
+   REMOVE FAVORITE BUTTON
+   ============================================ */
+.remove-favorite {
+    background: #d32f2f;
+    color: white;
+    border: none;
+    padding: var(--herbal-space-sm) var(--herbal-space-md);
+    border-radius: var(--herbal-radius-md);
+    font-size: var(--herbal-font-size-sm);
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: var(--herbal-space-sm);
+}
+
+.remove-favorite:hover {
+    background: #c62828;
+    transform: scale(1.05);
+}
+
+/* ============================================
+   FAVORITES SECTION
+   ============================================ */
+.favorites-section {
+    margin-bottom: var(--herbal-space-2xl);
+}
+
+.favorites-section:last-child {
+    margin-bottom: 0;
+}
+
+.favorites-section-header {
+    display: flex;
+    align-items: center;
+    gap: var(--herbal-space-md);
+    margin-bottom: var(--herbal-space-md);
+    padding-bottom: var(--herbal-space-md);
+    border-bottom: 2px solid var(--herbal-primary-lighter);
+}
+
+.favorites-section-icon {
+    font-size: 1.5rem;
+}
+
+.favorites-section-title {
+    font-size: var(--herbal-font-size-xl);
+    font-weight: 600;
+    color: var(--herbal-primary);
+    flex: 1;
+}
+
+.favorites-section-count {
+    font-size: var(--herbal-font-size-base);
+    color: var(--herbal-text-secondary);
+    background: var(--herbal-bg);
+    padding: var(--herbal-space-xs) var(--herbal-space-md);
+    border-radius: 12px;
+}
+
+.favorites-empty {
+    text-align: center;
+    padding: var(--herbal-space-2xl) var(--herbal-space-md);
+    color: var(--herbal-text-secondary);
+}
+
+.favorites-empty-icon {
+    font-size: 3rem;
+    margin-bottom: var(--herbal-space-md);
+    opacity: 0.5;
+}
+
+/* ============================================
+   OFFLINE INDICATOR
+   ============================================ */
+.offline-indicator {
+    position: fixed;
+    top: clamp(60px, 10vw + 40px, 70px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ff9800;
+    color: white;
+    padding: var(--herbal-space-sm) var(--herbal-space-lg);
+    border-radius: var(--herbal-radius-md);
+    box-shadow: var(--herbal-shadow-hover);
+    z-index: 150;
+    display: none;
+    align-items: center;
+    gap: var(--herbal-space-sm);
+    font-weight: 600;
+    font-size: var(--herbal-font-size-base);
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translate(-50%, -100%);
+        opacity: 0;
+    }
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}
+
+.offline-indicator.show {
+    display: flex;
+}
+
+.offline-indicator.online {
+    background: #4caf50;
+}
+
+/* ============================================
+   EXPORT NOTIFICATION
+   ============================================ */
+.export-notification {
+    position: fixed;
+    bottom: clamp(5rem, 10vw + 3rem, 6rem);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #4caf50;
+    color: white;
+    padding: var(--herbal-space-md) var(--herbal-space-lg);
+    border-radius: var(--herbal-radius-md);
+    box-shadow: var(--herbal-shadow-hover);
+    z-index: 150;
+    display: none;
+    animation: slideUp 0.3s ease-out;
+}
+
+.export-notification.show {
+    display: block;
+}
+
+/* ============================================
+   TIPS SECTION
+   ============================================ */
+.tips-section {
+    background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+    border-radius: var(--herbal-radius-lg);
+    padding: var(--herbal-space-lg);
+    margin: var(--herbal-space-lg) 0;
+    border-left: 4px solid var(--herbal-primary);
+}
+
+.tips-header {
+    display: flex;
+    align-items: center;
+    gap: var(--herbal-space-md);
+    margin-bottom: var(--herbal-space-md);
+}
+
+.tips-icon {
+    font-size: 2rem;
+}
+
+.tips-title {
+    font-size: var(--herbal-font-size-lg);
+    font-weight: 600;
+    color: var(--herbal-primary);
+}
+
+.tips-content {
+    color: var(--herbal-text);
+    line-height: 1.6;
+}
+
+.tips-refresh {
+    margin-top: var(--herbal-space-md);
+    padding: var(--herbal-space-sm) var(--herbal-space-md);
+    background: white;
+    border: 2px solid var(--herbal-primary);
+    color: var(--herbal-primary);
+    border-radius: var(--herbal-radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.tips-refresh:hover {
+    background: var(--herbal-primary);
+    color: white;
+}
+
+/* ============================================
+   RECENTLY VIEWED
+   ============================================ */
+.recently-viewed {
+    margin-top: var(--herbal-space-2xl);
+    padding-top: var(--herbal-space-lg);
+    border-top: 2px solid var(--herbal-border);
+}
+
+.recently-viewed-title {
+    font-size: var(--herbal-font-size-lg);
+    font-weight: 600;
+    color: var(--herbal-text-secondary);
+    margin-bottom: var(--herbal-space-md);
+    display: flex;
+    align-items: center;
+    gap: var(--herbal-space-sm);
+}
+
+.recently-viewed-list {
+    display: flex;
+    gap: var(--herbal-space-sm);
+    overflow-x: auto;
+    padding-bottom: var(--herbal-space-sm);
+    -webkit-overflow-scrolling: touch;
+}
+
+.recently-viewed-item {
+    background: white;
+    border: 2px solid var(--herbal-border);
+    border-radius: var(--herbal-radius-md);
+    padding: var(--herbal-space-sm) var(--herbal-space-md);
+    min-width: 150px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-size: var(--herbal-font-size-base);
+    display: flex;
+    align-items: center;
+    gap: var(--herbal-space-sm);
+}
+
+.recently-viewed-item:hover {
+    border-color: var(--herbal-primary);
+    background: var(--herbal-bg);
+}
+
+/* ============================================
+   SEARCH HISTORY
+   ============================================ */
+.search-history {
+    background: white;
+    border: 1px solid var(--herbal-border);
+    border-radius: var(--herbal-radius-md);
+    margin-top: var(--herbal-space-sm);
+    padding: var(--herbal-space-md);
+    display: none;
+}
+
+.search-history.show {
+    display: block;
+}
+
+.search-history-title {
+    font-size: var(--herbal-font-size-sm);
+    font-weight: 600;
+    color: var(--herbal-text-secondary);
+    margin-bottom: var(--herbal-space-sm);
+}
+
+.search-history-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--herbal-space-sm);
+}
+
+.search-history-item {
+    background: var(--herbal-bg);
+    border: 1px solid var(--herbal-border);
+    border-radius: 16px;
+    padding: var(--herbal-space-xs) var(--herbal-space-md);
+    font-size: var(--herbal-font-size-sm);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.search-history-item:hover {
+    background: var(--herbal-primary-lighter);
+    color: white;
+    border-color: var(--herbal-primary-lighter);
+}
+
+/* ============================================
+   VIEW CONTAINER ANIMATION
+   ============================================ */
+.view-container {
+    animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--herbal-primary);
+    color: white;
+    padding: var(--herbal-space-sm);
+    text-decoration: none;
+    z-index: 1000;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+*:focus-visible {
+    outline: 3px solid var(--herbal-primary);
+    outline-offset: 2px;
+}
+
+button:focus-visible,
+.card:focus-visible,
+.disease-card:focus-visible {
+    outline: 3px solid var(--herbal-primary);
+    outline-offset: 2px;
+}
+
+/* ============================================
+   DARK MODE
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --herbal-bg: #1a1a1a;
+        --herbal-text: #5b5b5b;
+        --herbal-text-secondary: #757575;
+        --herbal-border: #333;
+        --herbal-primary: #4a7c3b;
+        --herbal-primary-light: #5a8c4b;
+        --herbal-primary-lighter: #6a9c5b;
+    }
+    
+    body {
+        background-color: #121212;
+    }
+    
+    .card, .disease-card, .modal-content {
+        background: #1e1e1e;
+        color: var(--herbal-text);
+    }
+    
+    .search-box {
+        background: #2a2a2a;
+        color: var(--herbal-text);
+        border-color: #444;
+    }
+    
+    .autocomplete-dropdown {
+        background: #2a2a2a;
+        border-color: #444;
+    }
+    
+    .autocomplete-item:hover {
+        background: #333;
+    }
+    
+    .category-chip {
+        background: #2a2a2a;
+        border-color: #444;
+        color: var(--herbal-text);
+    }
+    
+    .category-chip:hover {
+        background: #333;
+    }
+    
+    .modal-overlay {
+        background: rgba(0, 0, 0, 0.8);
+    }
+    
+    .bottom-nav {
+        background: #1e1e1e;
+        border-top: 1px solid #333;
+    }
+    
+    .disease-item, .plant-list-item {
+        background: #2a2a2a;
+    }
+    
+    .empty-state {
+        color: var(--herbal-text-secondary);
+    }
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+    .app-header, .bottom-nav, .install-banner, 
+    .offline-indicator, .modal-close, 
+    .favorite-btn, .share-button {
+        display: none !important;
+    }
+    
+    .modal-overlay {
+        position: static;
+        background: white;
+    }
+    
+    .modal-content {
+        box-shadow: none;
+        max-height: none;
+    }
+    
+    body {
+        background: white;
+        color: black;
+    }
+}
+
+/* ============================================
+   RESPONSIVE IMPROVEMENTS
+   ============================================ */
+@media (max-width: 768px) {
+    .card-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-content {
+        max-height: 95vh;
+        margin: 0;
+        border-radius: var(--herbal-radius-xl) var(--herbal-radius-xl) 0 0;
+    }
+    
+    .modal-overlay {
+        align-items: flex-end;
+        padding: 0;
+    }
+    
+    .category-filters {
+        margin-left: calc(var(--herbal-container-padding) * -1);
+        margin-right: calc(var(--herbal-container-padding) * -1);
+        padding-left: var(--herbal-container-padding);
+        padding-right: var(--herbal-container-padding);
+    }
+    
+    .offline-indicator {
+        top: 60px;
+        left: var(--herbal-space-md);
+        right: var(--herbal-space-md);
+        transform: none;
+        font-size: var(--herbal-font-size-sm);
+        padding: var(--herbal-space-sm) var(--herbal-space-md);
+    }
+    
+    .card, .disease-card {
+        min-height: 120px;
+    }
+    
+    button, .nav-item, .category-chip {
+        min-height: 48px;
+        min-width: 48px;
+    }
+}

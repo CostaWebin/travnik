@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Справочник лекарственных растений с оффлайн доступом. Поиск по растениям и болезням, рецепты и дозировки.">
+    <meta name="keywords" content="травник, лекарственные растения, народная медицина, фитотерапия, рецепты">
+    <meta name="theme-color" content="#2d5016">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Травник">
+    
+    <title>Травник - Справочник лекарственных растений</title>
+    
+    <!-- PWA manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Phosphor Icons CDN -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Skip to content link for accessibility -->
+    <a href="#appMain" class="skip-link">Перейти к содержимому</a>
+    
+    <!-- Header -->
+    <header class="app-header" role="banner">
+        <div class="header-content">
+            <span class="app-icon" role="img" aria-label="Лист растения">🌿</span>
+            <h1>Травник</h1>
+        </div>
+    </header>
+
+    <!-- Main content area -->
+    <main class="app-main" id="appMain" role="main" tabindex="-1">
+        <div class="loading">
+            <div class="loading-spinner"></div>
+            <p>Загрузка приложения...</p>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav" role="navigation" aria-label="Основная навигация">
+        <button class="nav-item active" data-tab="plants" aria-label="Поиск по растениям">
+            <span class="nav-icon" role="img" aria-hidden="true">🌱</span>
+            <span class="nav-label">Растения</span>
+        </button>
+        <button class="nav-item" data-tab="diseases" aria-label="Поиск по болезням">
+            <span class="nav-icon" role="img" aria-hidden="true">💊</span>
+            <span class="nav-label">Болезни</span>
+        </button>
+        <button class="nav-item" data-tab="favorites" aria-label="Избранное">
+            <span class="nav-icon" role="img" aria-hidden="true">⭐</span>
+            <span class="nav-label">Избранное</span>
+        </button>
+    </nav>
+
+    <!-- Install prompt -->
+    <div class="install-banner" id="installBanner" style="display: none;" role="alert">
+        <p>📱 Установите приложение для быстрого доступа</p>
+        <button id="installButton" aria-label="Установить приложение">Установить</button>
+        <button id="dismissInstall" aria-label="Закрыть">✕</button>
+    </div>
+
+    <!-- Scripts -->
+    <script src="db.js"></script>
+    <script src="app.js"></script>
+    
+    <!-- Register Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('✅ Service Worker зарегистрирован:', registration.scope);
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New version available
+                                    if (confirm('Доступна новая версия приложения. Обновить?')) {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.error('❌ Ошибка регистрации Service Worker:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

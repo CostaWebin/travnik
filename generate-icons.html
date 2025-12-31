@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate PWA Icons</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .icon-preview {
+            display: inline-block;
+            margin: 1rem;
+            text-align: center;
+        }
+        canvas {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        button {
+            background: #2d5016;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 1rem 0;
+        }
+        button:hover {
+            background: #4a7c3b;
+        }
+        .instructions {
+            background: #f0f8f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        h1 {
+            color: #2d5016;
+        }
+    </style>
+</head>
+<body>
+    <div class="instructions">
+        <h1>🌿 Herbal Guide PWA - Icon Generator</h1>
+        <p>Click the button below to generate all required PWA icons. The icons will be downloaded automatically.</p>
+        <p><strong>Icon Design:</strong> Green background (#2d5016) with white leaf emoji 🌿 in the center</p>
+    </div>
+    
+    <button onclick="generateAndDownloadIcons()">Generate & Download All Icons</button>
+    
+    <div id="iconsContainer"></div>
+    
+    <script>
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        const bgColor = '#2d5016';
+        
+        function generateIcon(size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Fill background
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Draw leaf emoji in center
+            ctx.font = `${size * 0.5}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = 'white';
+            ctx.fillText('🌿', size / 2, size / 2);
+            
+            return canvas;
+        }
+        
+        function downloadIcon(canvas, size) {
+            const link = document.createElement('a');
+            link.download = `icon-${size}x${size}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        function generateAndDownloadIcons() {
+            const container = document.getElementById('iconsContainer');
+            container.innerHTML = '<h2>Generating icons...</h2>';
+            
+            let delay = 0;
+            sizes.forEach(size => {
+                setTimeout(() => {
+                    const canvas = generateIcon(size);
+                    downloadIcon(canvas, size);
+                    
+                    // Show preview
+                    const preview = document.createElement('div');
+                    preview.className = 'icon-preview';
+                    preview.innerHTML = `
+                        <div>
+                            <canvas width="${size}" height="${size}"></canvas>
+                            <p>icon-${size}x${size}.png</p>
+                        </div>
+                    `;
+                    preview.querySelector('canvas').getContext('2d').drawImage(canvas, 0, 0);
+                    container.appendChild(preview);
+                }, delay);
+                delay += 200;
+            });
+            
+            setTimeout(() => {
+                container.innerHTML += '<h2 style="margin-top: 2rem; color: #4caf50;">✅ All icons generated and downloaded!</h2>';
+                container.innerHTML += '<p style="margin-top: 1rem;"><strong>Next steps:</strong></p>';
+                container.innerHTML += '<ol style="margin-left: 2rem;">';
+                container.innerHTML += '<li>Move all downloaded PNG files to the <code>icons/</code> folder</li>';
+                container.innerHTML += '<li>Refresh your browser to see the updated icons</li>';
+                container.innerHTML += '</ol>';
+            }, delay + 500);
+        }
+        
+        // Auto-generate on page load
+        window.onload = () => {
+            setTimeout(generateAndDownloadIcons, 1000);
+        };
+    </script>
+</body>
+</html>
